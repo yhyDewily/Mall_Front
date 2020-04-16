@@ -6,7 +6,7 @@
         <el-divider><i class="el-icon-search"></i></el-divider>
         <div class="goods-box">
             <div class="goods-list-box">
-
+                {{ query }}
             </div>
         </div>
         <nav-footer></nav-footer>
