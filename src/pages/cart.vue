@@ -218,7 +218,7 @@
                             flex:2;
                             .num-box{
                                 display:inline-block;
-                                width:150px;
+                                width:160px;
                                 height:40px;
                                 line-height:40px;
                                 border:1px solid #E5E5E5;

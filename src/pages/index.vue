@@ -4,7 +4,7 @@
             <div class="swiper-box">
                 <swiper v-bind:options="swiperOption">
                     <swiper-slide v-for="(item,index) in slideList" v-bind:key="index">
-                        <a v-bind:href="'/#/product/'+item.id"><img v-bind:src="item.img"></a>
+                        <a v-bind:href="'/#/result/'+item.category"><img v-bind:src="item.img"></a>
                     </swiper-slide>
                     <!-- Optional controls -->
                     <div class="swiper-pagination"  slot="pagination"></div>
@@ -90,7 +90,18 @@
                     }
                 },
                 slideList:[
-
+                    {
+                        category: 'Adidas',
+                        img: '/imgs/slider/slide-1.jpg'
+                    },
+                    {
+                        category: 'UNIQLO',
+                        img: '/imgs/slider/slide-2.jpg'
+                    },
+                    {
+                        category: 'Meters',
+                        img: '/imgs/slider/slide-3.jpg'
+                    }
                 ],
                 femaleList:[
                     [

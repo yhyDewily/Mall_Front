@@ -7,7 +7,7 @@
                 </el-col>
             </el-form-item>
             <el-form-item label="性别">
-                <el-select :disabled="change" v-model="form.sex" placeholder="请选择活动区域">
+                <el-select :disabled="change" v-model="form.sex" placeholder="请选择性别">
                     <el-option label="男" value="1"></el-option>
                     <el-option label="女" value="0"></el-option>
                 </el-select>

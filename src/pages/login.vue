@@ -1,13 +1,14 @@
 <template>
     <div class="login">
         <div class="container">
-            <a href="/#/index"><img src="/imgs/login-logo.png" alt=""></a>
+            <a href="/#/index"><img src="/imgs/SHU.jpeg" alt=""></a>
+            <div class="login-title">品牌服饰空中商城</div>
         </div>
         <div class="wrapper">
             <div class="container">
                 <div class="login-form">
                     <h3>
-                        <span class="checked">帐号登录</span><span class="sep-line">|</span><span>扫码登录</span>
+                        <span class="checked">帐号登录</span>
                     </h3>
                     <div class="input">
                         <el-input v-model="username" placeholder="请输入用户名"></el-input>
@@ -19,20 +20,14 @@
                         <el-button type="primary" @click="login">登录</el-button>
                     </div>
                     <div class="tips">
-                        <div class="sms" @click="register">手机短信登录/注册</div>
-                        <div class="reg">立即注册<span>|</span>忘记密码？</div>
+                        <div class="sms" @click="register">立即注册</div>
+                        <div class="reg" @click="forget_pwd">忘记密码？</div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="footer">
-            <div class="footer-link">
-                <a href="https://www.imooc.com/u/1343480" target="_blank">河畔一角主页</a><span>|</span>
-                <a href="https://coding.imooc.com/class/113.html" target="_blank">Vue全栈课程</a><span>|</span>
-                <a href="https://coding.imooc.com/class/236.html" target="_blank">React全家桶课程</a><span>|</span>
-                <a href="https://coding.imooc.com/class/343.html" target="_blank">微信支付专项课程（H5+小程序/云+Node+MongoDB）</a>
-            </div>
-            <p class="copyright">Copyright ©2019 mi.futurefe.com All Rights Reserved.</p>
+            <p class="copyright">Copyright ©2019 www.shu.com All Rights Reserved.</p>
         </div>
     </div>
 </template>
@@ -73,31 +68,12 @@
                 }).catch(error => {
                     console.log(error)
                 })
-
-                // this.axios.post('http://localhost:8090/user/login.do',{
-                //     'username':this.username,
-                //     'password':this.password
-                // }).then((res)=>{
-                //     console.log(res.data)
-                //     this.$cookie.set('userId',res.id,{expires:'Session'});
-                //     // this.$store.dispatch('saveUserName',res.username);
-                //     this.saveUserName(res.username);
-                //     this.$router.push({
-                //         name:'index',
-                //         params:{
-                //             from:'login'
-                //         }
-                //     });
-                // })
             },
             register(){
-                // this.axios.post('/user/register',{
-                //     username:'admin1',
-                //     password:'admin1',
-                //     email:'admin1@163.com'
-                // }).then(()=>{
-                //     this.$message.success('注册成功');
-                // })
+                this.$router.push("/register");
+            },
+            forget_pwd(){
+
             }
         }
     }
@@ -106,10 +82,18 @@
     @import './../assets/scss/base.scss';
     .login{
         &>.container{
+            display: flex;
+            flex-direction: row;
             height:113px;
             img{
-                width:auto;
-                height:100%;
+                margin-top: 30px;
+                width:55px;
+                height:55px;
+            }
+            .login-title{
+                margin-top: 42px;
+                margin-left: 6px;
+                font-size: 20px;
             }
         }
         .wrapper{

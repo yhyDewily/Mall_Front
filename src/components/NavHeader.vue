@@ -67,7 +67,10 @@
                 this.$router.push("/login");
             },
             logout: function () {
-
+                this.$cookie.set('userId','',{expires:'-1'});
+                this.$store.dispatch('saveUserName','');
+                this.$store.dispatch('saveCartCount','0');
+                window.alert("退出成功")
             },
             goToCart: function () {
                 if(this.username !== "") this.$router.push("/cart");
