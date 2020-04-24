@@ -1,12 +1,15 @@
 <template>
-    <div class="order">
-        我的订单
+    <div>
+        <router-view></router-view>
+        <nav-footer></nav-footer>
     </div>
 </template>
 
 <script>
+    import NavFooter from "../components/NavFooter";
     export default {
-        name: "order"
+        name: "order",
+        components: {NavFooter}
     }
 </script>
 

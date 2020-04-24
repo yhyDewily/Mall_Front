@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav-header></nav-header>
+        <nav-header @getSearchResult = "handleSearch"></nav-header>
         <el-divider></el-divider>
         <goods-class-nav></goods-class-nav>
         <el-divider><i class="el-icon-search"></i></el-divider>
@@ -48,7 +48,7 @@
                                 <img :src="item.mainImage"/>
                             </div>
                             <div class="goods-show-price">
-                                <span class="seckill-price">{{ item.price }}</span>
+                                <span class="seckill-price">{{ item.price}}</span>
                             </div>
                             <div class="goods-show-detail">
                                 <span class="goods-show-name">{{ item.name }}</span>
@@ -100,16 +100,39 @@
                 this.query = this.$route.params.query;
             },
             getGoodsList(){
-                this.$axios.get("/product/get_all.do")
-                    .then(res=>{
+                if(this.query === '100001' || this.query === '100002'){
+                    this.$axios.post("/product/sexList.do", this.$qs.stringify({
+                        categoryId: this.query
+                    })).then(res=>{
+                        console.log(res)
                         this.orderGoodsList = res.data.data;
                         this.row_1 = this.orderGoodsList.slice(0,4);
                         this.row_2 = this.orderGoodsList.slice(4,8);
                         this.row_3 = this.orderGoodsList.slice(8,12);
-                        // console.log(this.orderGoodsList)
-                        // console.log(this.row_1);
-                        // console.log(this.row_2);
-                        // console.log(this.row_3);
+                    })
+                } else {
+                    this.$axios.post("/product/list.do", this.$qs.stringify({
+                        keyword: this.query
+                    }))
+                        .then(res=>{
+                            this.orderGoodsList = res.data.data.content;
+                            this.row_1 = this.orderGoodsList.slice(0,4);
+                            this.row_2 = this.orderGoodsList.slice(4,8);
+                            this.row_3 = this.orderGoodsList.slice(8,12);
+                            console.log(this.orderGoodsList)
+                        })
+                }
+            },
+            handleSearch(val){
+                this.$axios.post("/product/list.do", this.$qs.stringify({
+                    keyword: val
+                }))
+                    .then(res=>{
+                        this.orderGoodsList = res.data.data.content;
+                        this.row_1 = this.orderGoodsList.slice(0,4);
+                        this.row_2 = this.orderGoodsList.slice(4,8);
+                        this.row_3 = this.orderGoodsList.slice(8,12);
+                        console.log(this.orderGoodsList)
                     })
             },
             handleSizeChange(val) {
@@ -170,7 +193,7 @@
     .goods-list {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-between;
+        /*justify-content: space-between;*/
     }
     .goods-show-info{
         width: 240px;

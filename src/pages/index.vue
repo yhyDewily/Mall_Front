@@ -16,10 +16,10 @@
         <div class="product-box">
             <div class="container">
                 <h2>女装</h2>
-                <h5><a href="javascript:;">更多</a></h5>
+                <h5><a href="javascript:;" @click="goToGender('100002')">更多</a></h5>
                 <div class="wrapper">
                     <div class="banner-left">
-                        <a href="/#/product/35"><img :src="'/imgs/index/female.jpeg'" alt=""></a>
+                        <a href="javascript:;"><img :src="'/imgs/index/female.jpeg'" alt=""></a>
                     </div>
                     <div class="list-box">
                         <div class="list" v-for="(arr,i) in femaleList" v-bind:key="i">
@@ -39,10 +39,10 @@
         <div class="product-box">
             <div class="container">
                 <h2>男装</h2>
-                <h5><a href="javascript:;">更多</a></h5>
+                <h5><a href="javascript:;" @click="goToGender('100001')">更多</a></h5>
                 <div class="wrapper">
                     <div class="banner-left">
-                        <a href="/#/product/35"><img :src="'/imgs/index/male/male.jpeg'" alt=""></a>
+                        <a href="javascript:;"><img :src="'/imgs/index/male/male.jpeg'" alt=""></a>
                     </div>
                     <div class="list-box">
                         <div class="list" v-for="(arr,i) in maleList" v-bind:key="i">
@@ -210,6 +210,14 @@
                     });
                 }
             },
+            goToGender: function (val) {
+                this.$router.push({
+                    name: 'result',
+                    params: {
+                        query: val
+                    }
+                })
+            }
             // goToCart(){
             //     this.$router.push('/cart');
             // }

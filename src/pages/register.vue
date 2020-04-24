@@ -79,7 +79,15 @@
                             <el-button @click="submit_info('form_2')" style="margin-left: 47px">提交</el-button>
                         </el-form>
                     </div>
-                    <div v-show="active === 3"></div>
+                    <div v-show="active === 3">
+                        <div class="register-success"
+                            style="font-size: 25px; text-align: center; margin-top: 20px"
+                        >注册成功，将在{{ count }}秒后跳转到登录页面，或点击下面按钮直接跳转</div>
+                        <el-button @click="jump"
+                                type="success" round
+                                   style="margin-left: 130px; margin-top: 20px"
+                        >确定</el-button>
+                    </div>
 <!--                    <el-button style="margin-top: 12px;" @click="next">下一步</el-button>-->
                 </div>
             </div>
@@ -95,7 +103,8 @@
         name: "register",
         data() {
             return{
-                active: 3,
+                active: 2,
+                count: '',
                 get_captcha: false,
                 form_1: {
                     phone: '',
@@ -144,14 +153,38 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         alert('submit!');
-                        this.active++
+                        this.active++;
+                        this.goToLogin();
                     } else {
                         console.log('error submit!!');
                         return false;
                     }
                 });
+            },
+            goToLogin(){
+                const time_count = 3;
+                if(!this.timer) {
+                    this.count = time_count;
+                    this.show = false;
+                    this.timer = setInterval(()=>{
+                        if(this.count > 0 && this.count <= time_count){
+                            this.count--;
+                        } else {
+                            this.show = true;
+                            clearInterval(this.timer)
+                            this.timer = null;
+                            this.$router.push("/login")
+                        }
+                    }, 1000)
+                }
+
+            },
+            jump() {
+                this.$router.push("/login")
             }
 
+        },
+        mounted() {
         }
     }
 </script>

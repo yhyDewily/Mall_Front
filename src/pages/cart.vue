@@ -16,11 +16,11 @@
                     <ul class="cart-item-list">
                         <li class="cart-item" v-for="(item,index) in list" v-bind:key="index">
                             <div class="item-check">
-                                <span class="checkbox" v-bind:class="{'checked':item.productSelected}"  @click="updateCart(item)"></span>
+                                <span class="checkbox" v-bind:class="{'checked':item.productChecked}"  @click="selectUnSelect(item)"></span>
                             </div>
                             <div class="item-name">
                                 <img v-lazy="item.productMainImage" alt="">
-                                <span>{{ item.productName }}</span>
+                                <span>{{ item.productName + ' ' + item.productSubtitle}} </span>
                             </div>
                             <div class="item-price">{{item.productPrice}}</div>
                             <div class="item-num">
@@ -62,18 +62,18 @@
         data(){
             return {
                 list:[
-                    {
-                        productSelected: true,
-                        productMainImage: '/imgs/pay/sample-small.jpg',
-                        productName: '花花公子男士外套春季工装机能男装上衣春秋韩版潮流牛仔夹克男',
-                        productPrice: 458,
-                        quantity: 1,
-                        productTotalPrice: 458,
-                        productStock: 10
-                    }
+                    // {
+                    //     productSelected: true,
+                    //     productMainImage: '/imgs/pay/sample-small.jpg',
+                    //     productName: '花花公子男士外套春季工装机能男装上衣春秋韩版潮流牛仔夹克男',
+                    //     productPrice: 458,
+                    //     quantity: 1,
+                    //     productTotalPrice: 458,
+                    //     productStock: 10
+                    // }
                 ],//商品列表
                 allChecked:false,//是否全选
-                cartTotalPrice:458,//商品总金额
+                cartTotalPrice:0,//商品总金额
                 checkedNum:0//选中商品数量
             }
         },
@@ -83,14 +83,41 @@
         methods:{
             // 获取购物车列表
             getCartList(){
-                this.$axios.get('/carts').then((res)=>{
-                    this.renderData(res);
+                this.$axios.post('/cart/list.do',this.$qs.stringify({
+                    userId: this.$cookie.get("userId")
+                })).then((res)=>{
+                    console.log(res)
+                    this.list = res.data.data.cartProductVoList;
+                    this.cartTotalPrice = res.data.data.cartTotalPrice
+                    let i=0;
+                    for(i=0;i<this.list.length;i++){
+                        if(this.list[i].productChecked === 1){
+                            this.checkedNum++
+                        }
+                    }
+                    for(i=0;i<this.list.length;i++){
+                        if(this.list[i].productChecked!==1){
+                            return
+                        }
+                        this.allChecked = true;
+                    }
+                }).catch(err=>{
+                    console.log(err)
                 })
             },
             // 更新购物车数量和购物车单选状态
+            selectUnSelect(item){
+                let selected = item.productChecked
+                let url = selected === 1?"/cart/un_select.do" : "/cart/select.do";
+                this.$axios.post(url,this.$qs.stringify({
+                    userId: this.$cookie.get("userId"),
+                    productId: item.productId
+                })).then(res=>{
+                    this.renderData(res.data.data)
+                })
+            },
             updateCart(item,type){
-                let quantity = item.quantity,
-                    selected = item.productSelected;
+                let quantity = item.quantity;
                 if(type === '-'){
                     if(quantity === 1){
                         this.$message.warning('商品至少保留一件');
@@ -103,40 +130,52 @@
                         return;
                     }
                     ++quantity;
-                }else{
-                    selected = !item.productSelected;
                 }
-                this.$axios.put(`/carts/${item.productId}`,{
-                    quantity,
-                    selected
-                }).then((res)=>{
-                    this.renderData(res);
+                this.$axios.post(`/cart/update.do`,this.$qs.stringify({
+                    userId: this.$cookie.get("userId"),
+                    productId: item.productId,
+                    quantity: quantity
+                })).then((res)=>{
+                    this.renderData(res.data.data);
                 })
             },
             // 删除购物车商品
             delProduct(item){
-                this.$axios.delete(`/carts/${item.productId}`).then((res)=>{
+                this.$axios.post(`/cart/delete_product.do`, this.$qs.stringify({
+                    userId: this.$cookie.get('userId'),
+                    productId: item.productId
+                })).then((res)=>{
                     this.$message.success('删除成功');
-                    this.renderData(res);
+                    this.renderData(res.data.data);
                 });
             },
             // 控制全选功能
             toggleAll(){
-                let url = this.allChecked?'/carts/unSelectAll':'/carts/selectAll';
-                this.$axios.put(url).then((res)=>{
-                    this.renderData(res);
+                let url = this.allChecked?'/cart/un_select_all.do':'/cart/select_all.do';
+                this.$axios.post(url, this.$qs.stringify({
+                    userId: this.$cookie.get("userId")
+                })).then((res)=>{
+                    console.log(res);
+                    this.renderData(res.data.data);
                 })
             },
             // 公共赋值
             renderData(res){
                 this.list = res.cartProductVoList || [];
-                this.allChecked = res.selectedAll;
+                this.allChecked = res.allChecked;
                 this.cartTotalPrice = res.cartTotalPrice;
-                this.checkedNum = this.list.filter(item=>item.productSelected).length;
+                let i =0;
+                this.checkedNum = 0;
+                for(; i < this.list.length; i++){
+                    if(this.list[i].productChecked === 1){
+                        this.checkedNum++
+                    }
+                }
+
             },
             // 购物车下单
             order(){
-                let isCheck = this.list.every(item=>!item.productSelected);
+                let isCheck = this.list.every(item=>!item.productChecked);
                 if(isCheck){
                     this.$message.warning('请选择一件商品');
                 }else{
@@ -202,8 +241,8 @@
                             display: flex;
                             align-items: center;
                             img{
-                                width:100px;
-                                height:80px;
+                                width:85px;
+                                height:85px;
                                 vertical-align:middle;
                             }
                             span{

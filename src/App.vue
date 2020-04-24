@@ -25,7 +25,7 @@
         this.$axios.post('/user/get_user_info.do', this.$qs.stringify({
           userId: this.$cookie.get('userId')
         })).then(res => {
-          console.log(res)
+          // console.log(res)
           this.$store.dispatch('saveUserName', res.data.data.username);
         }).catch(error=> {
           window.alert(error)

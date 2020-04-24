@@ -70,6 +70,10 @@
                 this.$cookie.set('userId','',{expires:'-1'});
                 this.$store.dispatch('saveUserName','');
                 this.$store.dispatch('saveCartCount','0');
+                this.$axios.post('/user/logout.do')
+                    .then((res)=>{
+                        console.log(res)
+                    })
                 window.alert("退出成功")
             },
             goToCart: function () {
@@ -80,7 +84,15 @@
                 this.$router.push("/register");
             },
             searching: function () {
-                if(this.searchParams !== "") {
+                if(this.$route.name === "result"){
+                    // this.$router.push({
+                    //     path: '/result/',
+                    //     params: {
+                    //         query: this.searchParams
+                    //     }
+                    // })
+                    this.$emit("getSearchResult", this.searchParams)
+                } else if(this.searchParams !== "") {
                     let query = this.searchParams;
                     this.$router.push({
                         name: 'result',

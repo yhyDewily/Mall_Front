@@ -16,7 +16,7 @@ import SearchResult from '../pages/searchResult'
 import Person from '../pages/person'
 import Address from "../components/Address";
 import PersonInfo from "../components/PersonInfo";
-import ChangePassword from "../components/ChangePassword";
+ import ChangePassword from "../components/ChangePassword";
 
 Vue.use(Router);
 
@@ -60,6 +60,9 @@ export default new Router({
       path: '/order',
       name: 'order',
       component: Order,
+      meta: {
+        requireAuth:true
+      },
       children:[
         {
           path: 'list',
