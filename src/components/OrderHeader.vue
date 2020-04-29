@@ -8,7 +8,7 @@
                 <h2>{{title}}<slot name="tip"></slot></h2>
             </div>
             <div class="username">
-                <a href="javascript:;">Dewily</a>
+                <a href="/#/person">{{ username }}</a>
             </div>
         </div>
     </div>

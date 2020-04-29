@@ -24,13 +24,13 @@
                             <el-form-item label="手机号" prop="phone">
                                 <el-input v-model="form_1.phone" placeholder="请输入手机号"></el-input>
                             </el-form-item>
-                            <el-form-item label="验证码" :rules="[
-                                {required: true, message: '请输入验证码', trigger: 'blur'}
-                            ]">
-                                <el-input v-model="form_1.captcha"></el-input>
-                            </el-form-item>
+<!--                            <el-form-item label="验证码" :rules="[-->
+<!--                                {required: true, message: '请输入验证码', trigger: 'blur'}-->
+<!--                            ]">-->
+<!--                                <el-input v-model="form_1.captcha"></el-input>-->
+<!--                            </el-form-item>-->
                             <div class="phone-button-group">
-                                <el-button @click="getCaptcha">获取验证码</el-button>
+<!--                                <el-button @click="getCaptcha">获取验证码</el-button>-->
                                 <el-button @click="check_phone('form_1')">验证手机号</el-button>
                             </div>
                         </el-form>
@@ -49,7 +49,7 @@
                                           :rules="[
                                 {required: true, message: '昵称不能为空', trigger: 'blur'}
                             ]"
-                            style="margin-top: -6px">
+                            style="margin-top: -10px">
                                 <el-select v-model="form_2.sex" placeholder="请选择性别" size="small">
                                     <el-option label="男" value="1"></el-option>
                                     <el-option label="女" value="0"></el-option>
@@ -58,13 +58,13 @@
                             <el-form-item label="邮箱" prop="email"
                                           :rules="[
                                                     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-                                                    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                                                    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
                                             ]"
-                                          style="display: flex; flex-direction:row;margin-top: -13px ">
+                                          style="display: flex; flex-direction:row;margin-top: -20px ">
                                 <el-input size="small" v-model="form_2.email"></el-input>
                             </el-form-item>
                             <el-form-item label="密保问题" prop="question"
-                                          style="margin-top: -3px; margin-left: -20px"
+                                          style="margin-top: -20px; margin-left: -20px"
                                             size="small">
                                 <el-select v-model="form_2.question" placeholder="问题一">
                                     <el-option label="问题一" value="question1"></el-option>
@@ -73,8 +73,16 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="密保答案"
-                                          style="display: flex; flex-direction:row; margin-left: -20px " size="small" >
+                                          style="display: flex; flex-direction:row; margin-left: -20px; margin-top: -10px " size="small" >
                                 <el-input placeholder="答案一" maxlength="10" show-word-limit v-model="form_2.answer" ></el-input>
+                            </el-form-item>
+                            <el-form-item label="密码" prop="password"
+                                          style="display: flex; flex-direction:row;margin-top: -15px ">
+                                <el-input type="password" v-model="form_2.password" autocomplete="off" size="small"></el-input>
+                            </el-form-item>
+                            <el-form-item label="确认密码" prop="checkPass"
+                                          style="display: flex; flex-direction:row; margin-left: -30px; margin-top: -10px ">
+                                <el-input type="password" v-model="form_2.checkPass" autocomplete="off" size="small"></el-input>
                             </el-form-item>
                             <el-button @click="submit_info('form_2')" style="margin-left: 47px">提交</el-button>
                         </el-form>
@@ -102,8 +110,28 @@
     export default {
         name: "register",
         data() {
+            const validatePass = (rule, value, callback) => {
+                if(value.toString().length<6) callback(new Error('密码长度不得小于6'))
+                if (value === '') {
+                    callback(new Error('请输入密码'))
+                } else {
+                    if (this.form_2.checkPass !== '') {
+                        this.$refs.form_2.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            const validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.form_2.password) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
             return{
-                active: 2,
+                active: 1,
                 count: '',
                 get_captcha: false,
                 form_1: {
@@ -116,6 +144,8 @@
                     email:'',
                     question:'',
                     answer:'',
+                    password: '',
+                    checkPass: ''
                 },
                 rules: {
                     phone: [
@@ -125,6 +155,26 @@
                             required: true,
                             pattern: /^(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])\d{8}$/,
                             message: '请输入正确的手机号',
+                            trigger: 'blur'
+                        }
+                    ],
+                    password: [
+                        {
+                            required: true,
+                            validator: validatePass,
+                            // pattern: /^[a-zA-Z\d_]{6,}$/,
+                            trigger: 'blur'
+                        },
+                        // {
+                        //     required: true,
+                        //     trigger: 'blur',
+                        //     message: '密码长度必须在6-18之间且以字母开头'
+                        // }
+                    ],
+                    checkPass: [
+                        {
+                            required: true,
+                            validator: validatePass2,
                             trigger: 'blur'
                         }
                     ]
@@ -141,8 +191,19 @@
             check_phone(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        alert('submit!');
-                        this.active++
+                        this.$axios.post("/user/check_phone.do", this.$qs.stringify({
+                            mobile: this.form_1.phone
+                        })).then(res=>{
+                            console.log(res)
+                            if(res.data.status === 1){
+                                this.$message.error("手机号已存在")
+                                return
+                            } else {
+                                this.$message.success("手机号提交成功");
+                                this.active++
+                            }
+                        })
+                        // this.active++
                     } else {
                         console.log('error submit!!');
                         return false;
@@ -152,9 +213,24 @@
             submit_info(formName){
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        alert('submit!');
-                        this.active++;
-                        this.goToLogin();
+                        this.$axios.post("/user/register.do", this.$qs.stringify({
+                            sex: this.form_2.sex,
+                            username: this.form_2.name,
+                            password: this.form_2.password,
+                            email: this.form_2.email,
+                            phone: this.form_1.phone,
+                            question: this.form_2.question,
+                            answer: this.form_2.answer
+                        })).then(res=>{
+                            console.log(res)
+                            if(res.data.status === 0) {
+                                this.$message.success(res.data.msg);
+                                this.active++;
+                                this.goToLogin();
+                            } else {
+                                this.$message.error(res.data.msg);
+                            }
+                        })
                     } else {
                         console.log('error submit!!');
                         return false;
@@ -210,16 +286,16 @@
         .wrapper{
             background:url('/imgs/login-bg.jpg') no-repeat center;
             .container{
-                height:576px;
+                height:578px;
                 .login-form{
                     box-sizing: border-box;
                     padding-left: 31px;
                     padding-right: 31px;
-                    width:410px;
-                    height:510px;
+                    width:412px;
+                    height:556px;
                     background-color:#ffffff;
                     position:absolute;
-                    bottom:29px;
+                    bottom:20px;
                     right:0;
                     h3{
                         line-height:23px;

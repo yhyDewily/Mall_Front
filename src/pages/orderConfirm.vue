@@ -179,11 +179,29 @@
                 this.checkedItem = {};
                 this.showEditModal = true;
             },
-            productSubtitle(){
-
-            },
             orderSubmit(){
-
+                let item = this.list[this.checkIndex];
+                if(!item){
+                    this.$message.error('请选择一个收货地址');
+                    return;
+                }
+                this.$axios.post("/order/create.do", this.$qs.stringify({
+                    userId: this.$cookie.get("userId"),
+                    addressId: item.id
+                })).then(res=>{
+                    console.log(res)
+                    if(res.data.status === 0) {
+                        this.$router.push({
+                            name: 'order-pay',
+                            query: {
+                                orderNo: res.data.data.orderNo
+                            }
+                        })
+                    }
+                })
+                // this.$axios.post('/order/submit.do', this.$qs.stringify({
+                //     addressId: item.id
+                // }))
             },
             checkLegal(){
                 let checkedItem = this.checkedItem;
