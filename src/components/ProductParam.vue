@@ -4,22 +4,26 @@
             <div class="item-intro-nav" >
                 <el-tabs type="border-card">
                     <el-tab-pane label="商品详情">
-                        <div class="item-intro-img" ref="itemIntroGoods">
-                            <img :src="item" alt="" v-for="(item,index) in detail" :key="index">
-                        </div>
-                    </el-tab-pane>
-                    <el-tab-pane label="规格参数">
                         <div class="item-param-container">
-                            <span class="item-param-box"
-                            v-for="(item,index) in productParams"
-                            :key="index">
-                                <span class="item-param-title">
-                                    {{ item.title }}：
-                                </span>
-                                <span class="item-param-content">
-                                    {{ item.content }}
-                                </span>
-                            </span>
+                            <h3 class="title">ADIDAS NEO M ESNTL LG T 1 运动短袖T恤</h3>
+                            <p class="sub-title">一款采用修身型剪裁的日常T恤</p>
+                            <el-row
+                            style="margin-top: 10px">
+                                <el-col :span="12">
+                                    <div class="grid-content-left">
+                                        <p>有时候越简单越好。展现你的态度。这款Essentials T恤，在胸前饰撞色adidas徽标，旨在展现品牌风范。</p>
+                                    </div>
+                                </el-col>
+                                <el-col :span="12">
+                                    <div class="grid-content-right" v-for="(item, index) in productParams" :key="index">
+                                        <ul>
+                                            <li style="list-style-type: disc">
+                                                {{ item }}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </el-col>
+                            </el-row>
                         </div>
                     </el-tab-pane>
                     <el-tab-pane label="用户评价">
@@ -52,71 +56,59 @@
         },
         data: ()=>({
             productParams: [
-                {
-                    title: '名称',
-                    content: '花花公子男士外套'
-                },
-                {
-                    title: '基础风格',
-                    content: '青春流行'
-                },
-                {
-                    title: '厚薄',
-                    content: '常规'
-                },
-                {
-                    title: '材质成分',
-                    content: '聚酯纤维100%'
-                }
+                "修身型剪裁",
+                "圆领",
+                "棉",
+                "徽标T恤",
+                "短袖"
             ],
-            detail: [
-                '/imgs/detail/detail-1.jpg',
-                '/imgs/detail/detail-2.jpg',
-                '/imgs/detail/detail-3.jpg',
-            ]
         })
     }
 </script>
 
 <style scoped>
-.item-intro-detail{
-    width: 65%;
-    margin-left: 340px;
-}
-.item-param-container {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: space-between;
-}
-.item-param-box {
-    padding: 5px;
-    width: 240px;
-    height: 36px;
-    font-size: 14px;
-    /* text-align: center; */
-    /* background-color: #ccc; */
-}
-.item-param-title {
-    color: #232323;
-}
-.item-param-content {
-    color: #999;
-}
-.item-intro-img{
-    width: 100%;
-}
-.item-intro-img img{
-    width: 100%;
-}
-.remarks-bar {
-    padding-left: 15px;
-    height: 36px;
-    line-height: 36px;
-    color: #666666;
-    background-color: #F7F7F7;
-}
-.remarks-bar span {
-    margin-right: 15px;
-}
+    .item-intro-detail{
+        width: 1226px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .item-param-container {
+
+    }
+    .item-intro-img img{
+        width: 100%;
+    }
+    .remarks-bar {
+        padding-left: 15px;
+        height: 36px;
+        line-height: 36px;
+        color: #666666;
+        background-color: #F7F7F7;
+    }
+    .remarks-bar span {
+        margin-right: 15px;
+    }
+    .title {
+        font-size: 36px;
+        color: #000000;
+        letter-spacing: 0;
+        text-align: center;
+    }
+    .sub-title {
+        font-size: 24px;
+        color: #888;
+        text-align: center;
+    }
+    .grid-content-left p{
+        float: left;
+        padding: 0 35px 0 35px;
+        font-size: 14px;
+        color: #000000;
+        text-align: left;
+        line-height: 26px;
+    }
+    .grid-content-right {
+        font-size: 14px;
+        color: #000000;
+    }
 </style>

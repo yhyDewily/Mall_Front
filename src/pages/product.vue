@@ -5,14 +5,14 @@
 <!--            图片部分-->
             <div class="item-detail-left">
                 <div class="item-detail-big-img">
-                    <img :src="productInfo.imgs[imgIndex]" alt="">
+                    <img v-lazy="productInfo.imgs[imgIndex]" alt="">
                 </div>
                 <div class="item-detail-img-row">
                     <div class="item-detail-img-small"
                          v-for="(item,index) in productInfo.imgs"
                          :key="index"
                          @mouseover="showBigImg(index)">
-                        <img :src="item" alt="">
+                        <img v-lazy="item" alt="">
                     </div>
                 </div>
             </div>
@@ -21,6 +21,7 @@
 <!--                标题-->
                 <div class="item-detail-title">
                     <p>{{ productInfo.title }}</p>
+                    <p class="main_sub_title" style="font-size: 12px; color: #888">{{ productInfo.subtitle }}</p>
                 </div>
                 <div class="item-detail-price-row">
 <!--                    价格-->
@@ -46,20 +47,6 @@
                 </div>
                 <div class="item-select">
                     <div class="item-select-title">
-                        <p>选择颜色</p>
-                    </div>
-                    <div class="item-select-column">
-                        <div class="item-select-row" >
-                            <el-radio-group v-model="selected.color"
-                                            v-for="(item,index) in productInfo.color"
-                                            :key="index">
-                                <el-radio-button :label="item"></el-radio-button>
-                            </el-radio-group>
-                        </div>
-                    </div>
-                </div>
-                <div class="item-select">
-                    <div class="item-select-title">
                         <p>尺寸</p>
                     </div>
                     <div class="item-select-row">
@@ -74,56 +61,93 @@
                 <div class="cart-price">
                     <div class="add-buy-car-box">
                         <div class="add-buy-car">
-                            <el-input-number size="small" class="input-number" @change="countPrice" v-model="selected.count"  :min="1" :max="productInfo.store" label="描述文字"></el-input-number>
+                            <el-input-number size="small" class="input-number" @change="countPrice" v-model="selected.count"  :min="1" :max="productInfo.store" ></el-input-number>
                             <el-button type="danger" @click="addShoppingCart" round>加入购物车</el-button>
                         </div>
                         <div class="final-price-box">
                             <p class="final-price">总价：</p>
-                            <p class="final-price-num">{{ selected.price }}元</p>
+                            <p class="final-price-num">{{ totalPrice }}元</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <product-param></product-param>
+        <div class="item-intro-detail" ref="itemIntroDetail">
+            <div class="item-intro-nav" >
+                <el-tabs type="border-card">
+                    <el-tab-pane label="商品详情">
+                        <div class="item-param-container">
+                            <h3 class="title">{{ productInfo.title }}</h3>
+                            <p class="sub-title">{{ productInfo.subtitle }}</p>
+                            <el-row
+                                    style="margin-top: 10px">
+                                <el-col :span="12">
+                                    <div class="grid-content-left">
+                                        <p>{{ productInfo.detail }}</p>
+                                    </div>
+                                </el-col>
+                                <el-col :span="12">
+                                    <div class="grid-content-right" v-for="(item, index) in productParams" :key="index">
+                                        <ul>
+                                            <li style="list-style-type: disc">
+                                                {{ item }}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </el-tab-pane>
+                    <el-tab-pane label="用户评价">
+                        <div class="remarks-container">
+                            <div class="remark-analyse-box">
+                                <div class="remarks-bar">
+                                    <span>追评(2000)</span>
+                                    <span>好评(3000)</span>
+                                    <span>中评(900)</span>
+                                    <span>差评(1)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </el-tab-pane>
+                    <el-tab-pane label="售后保障">
+                        <show-product-warranty></show-product-warranty>
+                    </el-tab-pane>
+                </el-tabs>
+            </div>
+        </div>
+
     </div>
 </template>
 
 <script>
-    import ProductParam from "../components/ProductParam";
+    import ShowProductWarranty from "../components/ShowProductWarranty";
     export default {
         name: "product",
-        components: {ProductParam},
-        component: {
-            ProductParam
-        },
+        components: {ShowProductWarranty},
         data: ()=>({
             productId: 0,
             imgIndex: 0,
+            productParams: [
+            ],
             checked: false,
             selected: {
-                color: '',
                 size: '',
-                count: 0
+                count: 1
             },
+            totalPrice: 0,
             productInfo: {
                 imgs: [
-                    "/imgs/detail/sample-1.jpg",
-                    "/imgs/detail/sample-2.jpg",
-                    "/imgs/detail/sample-3.jpg",
-                    "/imgs/detail/sample-4.jpg",
                 ],
-                title: '花花公子男士外套春季工装机能男装上衣春秋韩版潮流牛仔夹克男',
-                goodsDetail: [],
-                price: 458,
+                title: '',
+                subtitle: '',
+                price: 0,
                 remarksNum: 600,
                 size: [
                     'M','L','XL','2XL','3XL','4XL'
                 ],
-                color:[
-                    '黑色', '红色', '蓝色', '灰色', '藏青色'
-                ],
-                store: 35
+                stock: 0,
+                detail: ''
             },
             advice: []
         }),
@@ -134,12 +158,25 @@
         methods: {
             getProduct() {
                 this.productId = this.$route.params.id
-                this.$axios.post('product/get_product_info.do', {
-                    params:{
-                        productId: this.productId
-                    }
-                }).then(res=>{
+                console.log(this.$route.params.id)
+                this.$axios.post('/product/get_product_info.do', this.$qs.stringify({
+                    productId: this.productId
+                })).then(res=>{
                     console.log(res);
+                    let proInfo = res.data.data;
+                    this.productInfo.title = proInfo.name;
+                    this.productInfo.price = proInfo.price;
+                    this.productInfo.subtitle = proInfo.subtitle;
+                    this.totalPrice = proInfo.price;
+                    this.productParams = proInfo.params;
+                    this.productInfo.imgs.push(proInfo.mainImage);
+                    this.productInfo.stock = proInfo.stock;
+                    this.productInfo.detail = proInfo.detail;
+                    if (proInfo.subImages !== null) {
+                        let i = 0;
+                        for(;i<proInfo.subImages.length;i++)
+                            this.productInfo.imgs.push(proInfo.subImages[i])
+                    }
                     // if(res.data.status === 0) {
                     //
                     // }
@@ -152,8 +189,25 @@
                 this.imgIndex = index;
             },
             addShoppingCart() {
-                if(this.selected.color.length === 0 || this.selected.size.length === 0) {
+                if(this.$cookie.get("userId") === null){
+                    this.$router.push("/login")
+                    return
+                } else if(this.selected.size.length === 0) {
                     window.alert("请选择规格")
+                } else {
+                   this.$axios.post("/cart/add.do", this.$qs.stringify({
+                       userId: this.$cookie.get("userId"),
+                       count: this.selected.count,
+                       productId: this.productId,
+                       size: this.selected.size
+                   })).then(res=>{
+                       console.log(res)
+                       if(res.data.status === 0) {
+                           this.$message.success("添加成功")
+                       } else {
+                           this.$message.error("添加失败")
+                       }
+                   })
                 }
             },
             countPrice(){
@@ -166,16 +220,16 @@
 
 <style scoped>
     .item-detail-show {
-        width: 80%;
-        margin: 15px auto;
+        width: 1226px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 10px;
         display: flex;
         flex-direction: row;
         background-color: #fff;
     }
     .item-detail-left {
         width: 350px;
-        margin-left: 180px;
-        margin-right: 30px;
     }
     .item-detail-big-img {
         width: 350px;
@@ -202,6 +256,7 @@
         width: 100%;
     }
     .item-detail-right {
+        margin-left: 30px;
         display: flex;
         flex-direction: column;
     }
@@ -297,5 +352,54 @@
         height:0;
         margin-bottom:28px;
         border-top:2px solid #E5E5E5;
+    }
+    .item-intro-detail{
+        width: 1226px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .item-param-container {
+
+    }
+    .item-intro-img img{
+        width: 100%;
+    }
+    .remarks-bar {
+        padding-left: 15px;
+        height: 36px;
+        line-height: 36px;
+        color: #666666;
+        background-color: #F7F7F7;
+    }
+    .remarks-bar span {
+        margin-right: 15px;
+    }
+    .title {
+        font-size: 36px;
+        color: #000000;
+        letter-spacing: 0;
+        text-align: center;
+    }
+    .sub-title {
+        font-size: 24px;
+        color: #888;
+        text-align: center;
+    }
+    .grid-content-left p{
+        float: left;
+        padding: 0 35px 0 35px;
+        font-size: 14px;
+        color: #000000;
+        text-align: left;
+        line-height: 26px;
+    }
+    .grid-content-right {
+        font-size: 14px;
+        color: #000000;
+        margin-left: 10px;
+    }
+    .main_sub_title{
+        font-size: 10px;
+        color: #888888;
     }
 </style>

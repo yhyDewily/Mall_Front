@@ -85,12 +85,6 @@
             },
             searching: function () {
                 if(this.$route.name === "result"){
-                    // this.$router.push({
-                    //     path: '/result/',
-                    //     params: {
-                    //         query: this.searchParams
-                    //     }
-                    // })
                     this.$emit("getSearchResult", this.searchParams)
                 } else if(this.searchParams !== "") {
                     let query = this.searchParams;

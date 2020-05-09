@@ -8,13 +8,19 @@
             <el-submenu index="1">
                 <template slot="title">品牌</template>
                 <div class="grand" v-for="(item,index) in grand" :key="index">
-                    <el-menu-item @click="handleSelect(item.index)">{{ item.name }}</el-menu-item>
+                    <el-menu-item @click="handleGrand(item.index)">{{ item.name }}</el-menu-item>
                 </div>
             </el-submenu>
             <el-submenu index="2">
-                <template slot="title">种类</template>
-                <div class="grand" v-for="(item,index) in category" :key="index">
-                    <el-menu-item @click="handleSelect(item)">{{ item }}</el-menu-item>
+                <template slot="title">男装</template>
+                <div class="grand" v-for="(item,index) in maleCategory" :key="index">
+                    <el-menu-item @click="handleType(item.id)">{{ item.name }}</el-menu-item>
+                </div>
+            </el-submenu>
+            <el-submenu index="3">
+                <template slot="title">女装</template>
+                <div class="grand" v-for="(item,index) in femaleCategory" :key="index">
+                    <el-menu-item @click="handleType(item.id)">{{ item.name }}</el-menu-item>
                 </div>
             </el-submenu>
         </el-menu>
@@ -29,51 +35,105 @@
 
             grand: [
                 {
-                    index: 'Adidas',
+                    index: 'adidas',
                     name: '阿迪达斯(Adidas)'
                 },
                 {
-                    index: 'Nike',
+                    index: 'nike',
                     name: '耐克(Nike)'
                 },
                 {
-                    index: '恒源祥',
-                    name: '恒源祥'
-                },
-                {
-                    index: 'playboy',
-                    name: '花花公子(Playboy)'
-                },
-                {
-                    index: 'UNIQLO',
+                    index: 'uniqlo',
                     name: '优衣库(UNIQLO)'
                 },
                 {
-                    index: 'Meters',
+                    index: 'meters',
                     name: '美特斯邦威(MetersBone)'
                 },
                 {
-                    index: 'Zara',
+                    index: 'zara',
                     name: 'Zara'
                 },
             ],
-            category: [
-                '西装',
-                '裙子',
-                'T恤',
-                '毛衣',
-                '牛仔裤',
-                '休闲裤',
-                '外套',
-                '运动裤',
-                '羽绒服'
+            maleCategory: [
+                {
+                    name: '西装',
+                    id: 100003
+                },
+                {
+                    name: 'T恤',
+                    id: 100005
+                },
+                {
+                    name: '运动裤',
+                    id: 100015
+                },
+                {
+                    name: '毛衣',
+                    id: 100007
+                },
+                {
+                    name: '牛仔裤',
+                    id: 100009
+                },
+                {
+                    name: '休闲裤',
+                    id: 100011
+                },
+                {
+                    name: '外套',
+                    id: 100013
+                },
+                {
+                    name: '羽绒服',
+                    id: 100017
+                }
+            ],
+            femaleCategory: [
+                {
+                    name: '裙子',
+                    id: 100004
+                },
+                {
+                    name: 'T恤',
+                    id: 100006
+                },
+                {
+                    name: '运动裤',
+                    id: 100016
+                },
+                {
+                    name: '毛衣',
+                    id: 100008
+                },
+                {
+                    name: '牛仔裤',
+                    id: 100010
+                },
+                {
+                    name: '休闲裤',
+                    id: 100012
+                },
+                {
+                    name: '外套',
+                    id: 100014
+                },
+                {
+                    name: '羽绒服',
+                    id: 100018
+                }
             ],
             activeIndex: '1',
             activeIndex2: '1'
         }),
         methods: {
-            handleSelect(key) {
-                console.log(key);
+            handleGrand(grandId) {
+                this.$emit("getGrandResult", grandId);
+                console.log(grandId);
+            },
+            handleType(categoryId) {
+                this.$emit("getTypeResult", categoryId);
+                console.log(categoryId);
             }
         }
     }

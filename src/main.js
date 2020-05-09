@@ -45,19 +45,6 @@ router.beforeEach((to, from, next)=> {
   } else {
     next()
   }
-  // if(to.path === '/home' || to.path ==='/product' ||
-  //     to.path === '/result' || to.path ==='/register'||
-  //     to.path === 'index') {
-  //   next();
-  // } else if(to.path === '/login') {
-  //   if(isLogin) {
-  //     next("/index")
-  //   } else {
-  //     next()
-  //   }
-  // } else {
-  //   next('/login')
-  // }
 });
 
 

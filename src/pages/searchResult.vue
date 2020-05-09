@@ -2,7 +2,8 @@
     <div>
         <nav-header @getSearchResult = "handleSearch"></nav-header>
         <el-divider></el-divider>
-        <goods-class-nav></goods-class-nav>
+        <goods-class-nav @getTypeResult = "getType"
+                        @getGrandResult="getGrand"></goods-class-nav>
         <el-divider><i class="el-icon-search"></i></el-divider>
         <div class="container">
             <div class="goods-box">
@@ -45,7 +46,7 @@
                              :key="index"
                             @click="goToProduct(item.id)">
                             <div class="goods-show-img">
-                                <img :src="item.mainImage"/>
+                                <img v-lazy="item.mainImage"/>
                             </div>
                             <div class="goods-show-price">
                                 <span class="seckill-price">{{ item.price}}</span>
@@ -60,12 +61,11 @@
             </div>
             <div class="page">
                 <el-pagination
-                        @size-change="handleSizeChange"
                         @current-change="handleCurrentChange"
                         :current-page.sync="currentPage"
-                        :page-size="100"
+                        :page-size="12"
                         layout="prev, pager, next, jumper"
-                        :total="1000">
+                        :total="totalElements">
                 </el-pagination>
             </div>
         </div>
@@ -83,12 +83,20 @@
         components: {GoodsClassNav, NavFooter, NavHeader},
         data () {
             return {
+                action: 0,
+                // 0表示性别搜索
+                // 1表示关键词搜索
+                // 2表示品牌搜索
+                // 3表示种类搜索
                 query: '',
                 currentPage: 1,
                 row_1: [],
                 row_2: [],
                 row_3: [],
-                orderGoodsList: []
+                orderGoodsList: [],
+                page_size: 0,
+                totalPages: 0,
+                totalElements: 0
             }
         },
         mounted() {
@@ -99,50 +107,123 @@
             getResult() {
                 this.query = this.$route.params.query;
             },
+            sliceElements(val) {
+                this.orderGoodsList = val.content;
+                this.row_1 = this.orderGoodsList.slice(0,4);
+                this.row_2 = this.orderGoodsList.slice(4,8);
+                this.row_3 = this.orderGoodsList.slice(8,12);
+                this.totalElements = val.totalElements;
+                this.totalPages = val.totalPages;
+            },
             getGoodsList(){
                 if(this.query === '100001' || this.query === '100002'){
+                    this.action = 0;
                     this.$axios.post("/product/sexList.do", this.$qs.stringify({
                         categoryId: this.query
                     })).then(res=>{
-                        console.log(res)
-                        this.orderGoodsList = res.data.data;
-                        this.row_1 = this.orderGoodsList.slice(0,4);
-                        this.row_2 = this.orderGoodsList.slice(4,8);
-                        this.row_3 = this.orderGoodsList.slice(8,12);
+                        console.log(res);
+                        this.sliceElements(res.data.data)
                     })
                 } else {
+                    this.action = 1;
                     this.$axios.post("/product/list.do", this.$qs.stringify({
                         keyword: this.query
                     }))
                         .then(res=>{
-                            this.orderGoodsList = res.data.data.content;
-                            this.row_1 = this.orderGoodsList.slice(0,4);
-                            this.row_2 = this.orderGoodsList.slice(4,8);
-                            this.row_3 = this.orderGoodsList.slice(8,12);
-                            console.log(this.orderGoodsList)
+                            this.sliceElements(res.data.data)
                         })
                 }
             },
             handleSearch(val){
+                this.action = 1
+                this.$router.push({
+                    name: 'result',
+                    params: {
+                        query: val
+                    }
+                })
+                this.query = val;
                 this.$axios.post("/product/list.do", this.$qs.stringify({
-                    keyword: val
+                    keyword: val,
+                    pageNum: this.currentPage
                 }))
                     .then(res=>{
-                        this.orderGoodsList = res.data.data.content;
-                        this.row_1 = this.orderGoodsList.slice(0,4);
-                        this.row_2 = this.orderGoodsList.slice(4,8);
-                        this.row_3 = this.orderGoodsList.slice(8,12);
-                        console.log(this.orderGoodsList)
+                        console.log(res);
+                        this.sliceElements(res.data.data)
                     })
-            },
-            handleSizeChange(val) {
-                console.log(`每页 ${val} 条`);
             },
             handleCurrentChange(val) {
                 console.log(`当前页: ${val}`);
+                if(this.action === 0) {
+                    this.$axios.post("/product/sexList.do", this.$qs.stringify({
+                        categoryId: this.query,
+                        pageNum: val
+                    })).then(res=>{
+                        console.log(res);
+                        this.sliceElements(res.data.data)
+                    })
+                } else if(this.action === 1) {
+                    this.$axios.post("/product/list.do", this.$qs.stringify({
+                        keyword: this.query,
+                        pageNum: val
+                    }))
+                    .then(res=>{
+                        console.log(res)
+                        this.sliceElements(res.data.data)
+                    })
+                } else if (this.action === 2) {
+                    this.$axios.post("/product/grand_list.do", this.$qs.stringify({
+                        grandName: this.query,
+                        pageNum: val
+                    })).then(res=>{
+                        console.log(res)
+                        this.sliceElements(res.data.data)
+                    })
+                } else if (this.action === 3) {
+                    this.$axios.post("/product/category_list.do", this.$qs.stringify({
+                        keyword: this.query,
+                        pageNum: val
+                    })).then(res=>{
+                        this.sliceElements(res.data.data)
+                    })
+                }
             },
             goToProduct(val) {
                 this.$router.push("/product/" + val)
+            },
+            getGrand(val) {
+                console.log(val);
+                this.action = 2;
+                if(this.$route.query !== val) {
+                    this.$router.push({
+                        name: 'result',
+                        params: {
+                            query: val
+                        }
+                    })
+                }
+                this.$axios.post("/product/grand_list.do", this.$qs.stringify({
+                    grandName: val
+                })).then(res=>{
+                    console.log(res)
+                    this.sliceElements(res.data.data)
+                })
+            },
+            getType(val) {
+                console.log(val)
+                this.action = 3
+                this.$router.push({
+                    name: 'result',
+                    params: {
+                        query: val
+                    }
+                })
+                this.$axios.post("/product/category_list.do", this.$qs.stringify({
+                    keyword: val
+                })).then(res=>{
+                    console.log(res)
+                    this.sliceElements(res.data.data)
+                })
             }
         }
     }

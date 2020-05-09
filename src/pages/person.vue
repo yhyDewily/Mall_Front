@@ -24,7 +24,7 @@
                     <a href="/#/person/address">收货地址</a>
                     <a href="/#/person/person_info">修改个人信息</a>
                     <a href="/#/cart">我的购物车</a>
-                    <a href="/#/order">我的订单</a>
+                    <a href="/#/order/list">我的订单</a>
                 </div>
             </el-aside>
             <el-main>

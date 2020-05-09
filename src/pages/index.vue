@@ -106,37 +106,37 @@
                 femaleList:[
                     [
                         {
-                            category: '女式T恤',
+                            category: '100006',
                             name: 'T恤',
                             mainImage: '/imgs/index/female/female_shirt.jpg'
                         }, {
-                        category: '女式毛衣',
+                        category: '100008',
                         name: '毛衣',
                         mainImage: '/imgs/index/female/female_sweater.jpg'
                     }, {
-                        category: '女式牛仔裤',
+                        category: '100010',
                         name: '牛仔裤',
                         mainImage: '/imgs/index/female/female_jeans.jpg'
                     },{
-                        category: '女式休闲裤',
+                        category: '100012',
                         name: '休闲裤',
                         mainImage: '/imgs/index/female/female_pants.jpg'
                     }
                     ],[
                         {
-                            category: '裙子',
+                            category: '100004',
                             name: '裙子',
                             mainImage: '/imgs/index/female/female_skirt.jpeg'
                         },{
-                            category: '女式外套',
+                            category: '100014',
                             name: '外套',
                             mainImage: '/imgs/index/female/female_coat.jpg'
                         },{
-                            category: '女式运动裤',
+                            category: '100016',
                             name: '运动裤',
                             mainImage: '/imgs/index/female/female_sweatpants.jpg'
                         },{
-                            category: '女式羽绒服',
+                            category: '100018',
                             name: '羽绒服',
                             mainImage: '/imgs/index/female/female_downjacket.jpg'
                         }
@@ -145,37 +145,37 @@
                 maleList:[
                     [
                         {
-                            category: '男式T恤',
+                            category: '100005',
                             name: 'T恤',
                             mainImage: '/imgs/index/male/male_shirt.jpg'
                         }, {
-                            category: '男式羽绒服',
+                            category: '100007',
                             name: '毛衣',
                             mainImage: '/imgs/index/male/male_sweater.jpg'
                         }, {
-                           category: '男式牛仔裤',
+                           category: '100009',
                             name: '牛仔裤',
                             mainImage: '/imgs/index/male/male_jeans.jpg'
                         },{
-                            category: '男式休闲裤',
+                            category: '100011',
                             name: '休闲裤',
                             mainImage: '/imgs/index/male/male_pants.jpg'
                         }
                     ],[
                         {
-                            category: '男式西装',
+                            category: '100003',
                             name: '西装',
                             mainImage: '/imgs/index/male/male_suit.jpg'
                         },{
-                            category: '男式外套',
+                            category: '100013',
                             name: '外套',
                             mainImage: '/imgs/index/male/male_coat.jpg'
                         },{
-                            category: '男式运动裤',
+                            category: '100015',
                             name: '运动裤',
                             mainImage: '/imgs/index/male/male_sweatpants.jpg'
                         },{
-                            category: '男式羽绒服',
+                            category: '100017',
                             name: '羽绒服',
                             mainImage: '/imgs/index/male/male_downjacket.jpg'
                         }
