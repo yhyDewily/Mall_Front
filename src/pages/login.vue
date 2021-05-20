@@ -42,11 +42,18 @@
                 userId:''
             }
         },
+        created() {
+        },
         methods:{
+            redirectPath() {
+                if(localStorage.getItem("isLogin")) {
+                    this.$router.push("/index")
+                }
+            },
             login(){
                 let username = this.username;
                 let password = this.password;
-                this.$axios.post('user/login.do', this.$qs.stringify({
+                this.$axios.post('/user/login.do', this.$qs.stringify({
                     username: username,
                     password: password
                 })).then(res=>{
@@ -63,7 +70,7 @@
                             }
                         });
                     } else if(res.data.status === 1) {
-                        window.alert(res.data.msg);
+                        this.$message.error(res.data.msg)
                     }
                 }).catch(error => {
                     console.log(error)
@@ -73,7 +80,7 @@
                 this.$router.push("/register");
             },
             forget_pwd(){
-
+                this.$router.push("/reset")
             }
         }
     }
@@ -97,7 +104,9 @@
             }
         }
         .wrapper{
-            background:url('/imgs/login-bg.jpg') no-repeat center;
+            background:url('/imgs/login-bg.jpeg') no-repeat center;
+            width: 80%;
+            margin: 0 auto;
             .container{
                 height:576px;
                 .login-form{

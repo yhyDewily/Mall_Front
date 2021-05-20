@@ -115,7 +115,7 @@
 
 <script>
     import OrderHeader from "../components/OrderHeader";
-    import Modal from "../components/modal";
+    import Modal from "../components/Modal";
     export default {
         name: "orderConfirm",
         components: {OrderHeader, Modal},

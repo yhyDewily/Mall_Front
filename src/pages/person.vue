@@ -13,7 +13,7 @@
         </div>
         <el-container class="person-container">
             <el-aside
-            style="background-color: #e5e5e5">
+            style="background-color: #e5e5e5; height: 800px">
                 <el-avatar :size="110"
                            :src="circleUrl"
                            style="margin-left: 95px;
@@ -23,6 +23,7 @@
                 <div class="function">
                     <a href="/#/person/address">收货地址</a>
                     <a href="/#/person/person_info">修改个人信息</a>
+                    <a href="/#/person/change_password">修改密码</a>
                     <a href="/#/cart">我的购物车</a>
                     <a href="/#/order/list">我的订单</a>
                 </div>
@@ -49,7 +50,16 @@
         }),
         methods: {
             logout: function () {
-
+                this.$cookie.set('userId','',{expires:'-1'})
+                this.$store.dispatch('saveUserName','');
+                this.$store.dispatch('saveCartCount','0');
+                this.$axios.post('/user/logout.do')
+                    .then((res)=>{
+                        console.log(res)
+                    })
+                this.$router.push("/login")
+                this.$message.success("退出成功")
+                localStorage.clear()
             },
             goToCart: function () {
                 if(this.username !== "") this.$router.push("/cart");
@@ -57,6 +67,14 @@
             },
             goToPerson: function () {
                 this.$router.push('/person');
+            }
+        },
+        mounted() {
+            window.onbeforeunload = function () {
+                var storage = window.localStorage;
+                this.$cookie.remove("userId")
+                storage.clear()
+                localStorage.clear()
             }
         }
     }

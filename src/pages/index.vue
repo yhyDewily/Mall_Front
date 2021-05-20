@@ -185,12 +185,22 @@
         },
         mounted(){
             this.getUserInfo();
+            window.onbeforeunload = function () {
+                var storage = window.localStorage;
+                this.$cookie.remove("userId")
+                storage.clear()
+                localStorage.clear()
+            }
         },
         methods:{
             getUserInfo() {
-                this.$axios.post('/user/get_user_info.do').then(response=>{
-                    console.log(response)
-                })
+                if(localStorage.getItem("isLogin")){
+                    this.$axios.post('/user/get_user_info.do',this.$qs.stringify({
+                        userId: this.$cookie.get("userId")
+                    })).then(response=>{
+                        console.log(response)
+                    })
+                }
             },
             getCategory(category) {
                 this.$router.push({

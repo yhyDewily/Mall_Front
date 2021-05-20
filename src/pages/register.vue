@@ -24,14 +24,14 @@
                             <el-form-item label="手机号" prop="phone">
                                 <el-input v-model="form_1.phone" placeholder="请输入手机号"></el-input>
                             </el-form-item>
-<!--                            <el-form-item label="验证码" :rules="[-->
-<!--                                {required: true, message: '请输入验证码', trigger: 'blur'}-->
-<!--                            ]">-->
-<!--                                <el-input v-model="form_1.captcha"></el-input>-->
-<!--                            </el-form-item>-->
+                            <el-form-item v-show="showIdentify" label="验证码">
+                                <el-input v-model="form_1.captcha" placeholde="请输入验证码"></el-input>
+                            </el-form-item>
                             <div class="phone-button-group">
 <!--                                <el-button @click="getCaptcha">获取验证码</el-button>-->
-                                <el-button @click="check_phone('form_1')">验证手机号</el-button>
+                                <el-button @click="check_phone('form_1')" v-show="showSend">发送验证码</el-button>
+                                <el-button v-show="!showSend" disabled>{{ count }}s后可以重新发送</el-button>
+                                <el-button v-show="showIdentify" @click="checkIdentify">验证</el-button>
                             </div>
                         </el-form>
                     </div>
@@ -131,9 +131,12 @@
                 }
             };
             return{
+                showSend: true,
+                showIdentify: false,
                 active: 1,
                 count: '',
                 get_captcha: false,
+                reSend: false,
                 form_1: {
                     phone: '',
                     captcha:''
@@ -181,6 +184,10 @@
                 }
             }
         },
+
+        created() {
+
+        },
         methods: {
             // next() {
             //     if (this.active++ > 2) this.active = 1;
@@ -188,10 +195,15 @@
             getCaptcha() {
                 this.get_captcha = true
             },
+            redirectPath() {
+                if(localStorage.getItem("isLogin")) {
+                    this.$router.push("/index")
+                }
+            },
             check_phone(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$axios.post("/user/check_phone.do", this.$qs.stringify({
+                        this.$axios.post("/user/sendSms.do", this.$qs.stringify({
                             mobile: this.form_1.phone
                         })).then(res=>{
                             console.log(res)
@@ -199,8 +211,10 @@
                                 this.$message.error("手机号已存在")
                                 return
                             } else {
-                                this.$message.success("手机号提交成功");
-                                this.active++
+                                this.$message.success("验证码发送成功");
+                                this.countSend();
+                                this.showIdentify = true;
+                                this.showSend = false;
                             }
                         })
                         // this.active++
@@ -237,13 +251,49 @@
                     }
                 });
             },
+            checkIdentify() {
+                if(this.form_1.captcha === "") {
+                    this.$message.error("请输入验证码")
+                    return
+                } else {
+                    this.$axios.post("/user/check_identify.do",this.$qs.stringify({
+                        mobile: this.form_1.phone,
+                        identifyCode: this.form_1.captcha
+                    })).then(res=>{
+                        console.log(res)
+                        if(res.data.status === 0) {
+                            this.$message.success("验证成功")
+                            this.active++
+                        } else {
+                            this.$message.error("验证码错误")
+                        }
+                    })
+                }
+            },
+            countSend() {
+              const time_count = 60;
+              if(!this.timer) {
+                  this.count = time_count;
+                  this.show = false;
+                  this.timer = setInterval(()=>{
+                      if(this.count > 0 && this.count <=time_count) {
+                          this.count--;
+                      } else  {
+                          this.show = true;
+                          clearInterval(this.timer)
+                          this.timer = null;
+                          this.showSend = true;
+                      }
+                  }, 1000)
+              }
+            },
             goToLogin(){
-                const time_count = 3;
+                const register_count = 3;
                 if(!this.timer) {
-                    this.count = time_count;
+                    this.count = register_count;
                     this.show = false;
                     this.timer = setInterval(()=>{
-                        if(this.count > 0 && this.count <= time_count){
+                        if(this.count > 0 && this.count <= register_count){
                             this.count--;
                         } else {
                             this.show = true;
@@ -261,6 +311,12 @@
 
         },
         mounted() {
+            window.onbeforeunload = function () {
+                var storage = window.localStorage;
+                this.$cookie.remove("userId")
+                storage.clear()
+                localStorage.clear()
+            }
         }
     }
 </script>
@@ -284,8 +340,11 @@
             }
         }
         .wrapper{
-            background:url('/imgs/login-bg.jpg') no-repeat center;
+            background:url('/imgs/login-bg.jpeg') no-repeat center;
+            width: 80%;
+            margin: 0 auto;
             .container{
+
                 height:578px;
                 .login-form{
                     box-sizing: border-box;

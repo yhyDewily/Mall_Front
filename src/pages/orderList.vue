@@ -28,10 +28,10 @@
                         <div class="order-content clearfix">
                             <div class="good-box fl">
                                 <div class="good-list" v-for="(item,i) in order.orderItemVoList" :key="i">
-                                    <div class="good-img">
+                                    <div class="good-img" @click="goToProduct(item.productId)">
                                         <img v-lazy="item.productImage" alt="">
                                     </div>
-                                    <div class="good-name">
+                                    <div class="good-name" @click="goToProduct(item.productId)">
                                         <div class="p-name">{{item.productName}}</div>
                                         <div class="p-money">{{item.totalPrice + 'X' + item.quantity}}元</div>
                                     </div>
@@ -43,36 +43,19 @@
                             <div class="good-state fr" v-else>
                                 <a href="javascript:;">{{order.statusDesc}}</a>
                             </div>
-                            <div class="good-state fr">
-                                <a href="javascript:;" v-if="order.status >= 40">查看物流进度</a>
-                            </div>
-                            <div class="good-state fr" v-if="order.status >= 40">
-                                <a href="javascript:;">确认收货</a>
+                            <div class="good-state fr" v-if="order.status === 40">
+                                <a href="javascript:;" @click="confirmShip(order.orderNo)">确认收货</a>
                             </div>
                         </div>
                     </div>
                     <el-pagination
-                            v-if="true"
-                            class="pagination"
-                            background
-                            layout="prev, pager, next"
-                            :pageSize="pageSize"
-                            :total="total"
-                            @current-change="handleChange"
-                    >
+                            style="text-align: right"
+                            @current-change="handleCurrentChange"
+                            :current-page.sync="currentPage"
+                            :page-size="5"
+                            layout="prev, pager, next, jumper"
+                            :total="totalElements">
                     </el-pagination>
-                    <div class="load-more" v-if="false">
-                        <el-button type="primary" :loading="loading" @click="loadMore">加载更多</el-button>
-                    </div>
-                    <div class="scroll-more"
-                         v-infinite-scroll="scrollMore"
-                         infinite-scroll-disabled="true"
-                         infinite-scroll-distance="410"
-                         v-if="false"
-                    >
-                        <img src="/imgs/loading-svg/loading-spinning-bubbles.svg" alt="" v-show="loading">
-                    </div>
-                    <no-data v-if="!loading && list.length==0"></no-data>
                 </div>
             </div>
         </div>
@@ -80,14 +63,12 @@
 </template>
 <script>
     import OrderHeader from './../components/OrderHeader'
-    import NoData from './../components/NoData'
     import { Pagination,Button } from 'element-ui'
     // import infiniteScroll from 'vue-infinite-scroll'
     export default{
         name:'order-list',
         components:{
             OrderHeader,
-            NoData,
             [Pagination.name]:Pagination,
             [Button.name]:Button
         },
@@ -98,41 +79,29 @@
             return {
                 loading:false,
                 list:[],
-                pageSize:10,
-                pageNum:1,
-                total:0,
-                showNextPage:true,//加载更多：是否显示按钮
-                busy:false,//滚动加载，是否触发
+                currentPage:1,
+                totalElements:0,
+                totalPages: 0
             }
         },
         mounted(){
             this.getOrderList();
         },
         methods:{
+            sliceElements(val) {
+                this.list = val.content;
+                this.totalElements = val.totalElements;
+                this.totalPages = val.totalPages;
+            },
             getOrderList(){
                 console.log(this.$route.path)
-                this.loading = true;
-                this.busy = true;
                 this.$axios.post("/order/list.do", this.$qs.stringify({
                     userId: this.$cookie.get("userId")
                 })).then(res=>{
                     console.log(res)
-                    this.list = res.data.data;
+                    this.sliceElements(res.data.data)
                 })
-                // this.axios.get('/orders',{
-                //     params:{
-                //         pageSize:10,
-                //         pageNum:this.pageNum
-                //     }
-                // }).then((res)=>{
-                //     this.loading = false;
-                //     this.list = this.list.concat(res.list);
-                //     this.total = res.total;
-                //     this.showNextPage = res.hasNextPage;
-                //     this.busy = false;
-                // }).catch(()=>{
-                //     this.loading = false;
-                // })
+
             },
             goPay(orderNo){
                 console.log(orderNo)
@@ -151,43 +120,34 @@
                     }
                 })
             },
+            goToProduct(productId) {
+                this.$router.push("/product/" + productId)
+            },
             // 第一种方法：分页器
-            handleChange(pageNum){
-                console.log(pageNum)
-                // this.pageNum = pageNum;
-                // this.getOrderList();
+            handleCurrentChange(val) {
+                this.$axios.post("/order/list.do", this.$qs.stringify({
+                    userId: this.$cookie.get("userId"),
+                    pageNum: val
+                })).then(res=>{
+                    console.log(res)
+                    this.sliceElements(res.data.data)
+                })
             },
-            // 第二种方法：加载更多按钮
-            loadMore(){
-                // this.pageNum++;
-                // this.getOrderList();
-            },
-            // 第三种方法：滚动加载，通过npm插件实现
-            scrollMore(){
-                // this.busy = true;
-                // setTimeout(()=>{
-                //     this.pageNum++;
-                //     this.getList();
-                // },500);
-            },
-            // 专门给scrollMore使用
-            getList(){
-                // this.loading = true;
-                // this.axios.get('/orders',{
-                //     params:{
-                //         pageSize:10,
-                //         pageNum:this.pageNum
-                //     }
-                // }).then((res)=>{
-                //     this.list = this.list.concat(res.list);
-                //     this.loading = false;
-                //     if(res.hasNextPage){
-                //         this.busy=false;
-                //     }else{
-                //         this.busy=true;
-                //     }
-                // });
-            },
+            confirmShip(val) {
+                this.$axios.post("/order/confirm_shipping.do", this.$qs.stringify({
+                    userId: this.$cookie.get("userId"),
+                    orderNo: val
+                })).then(res=>{
+                    if(res.data.status === 0) {
+                        this.list = [];
+                        this.getOrderList();
+                        this.currentPage = 1;
+                    } else {
+                        this.$message.error("请稍后重试")
+                    }
+                })
+            }
+
         }
     }
 </script>
@@ -233,6 +193,7 @@
                                 height:145px;
                                 .good-img{
                                     width:112px;
+                                    cursor: pointer;
                                     img{
                                         width:100%;
                                     }
@@ -241,6 +202,7 @@
                                     font-size:20px;
                                     margin-left: 10px;
                                     color:$colorB;
+                                    cursor: pointer;
                                 }
                             }
                         }

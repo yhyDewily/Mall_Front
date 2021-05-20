@@ -9,7 +9,15 @@
     import NavFooter from "../components/NavFooter";
     export default {
         name: "order",
-        components: {NavFooter}
+        components: {NavFooter},
+        mounted() {
+            // window.onbeforeunload = function () {
+            //     var storage = window.localStorage;
+            //     this.$cookie.remove("userId")
+            //     storage.clear()
+            //     localStorage.clear()
+            // }
+        }
     }
 </script>
 

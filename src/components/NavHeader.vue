@@ -23,13 +23,13 @@
                         <span>猜你喜欢</span>
                         <div class="children">
                             <ul>
-                                <li class="product">
-                                    <a href="" target="_blank">
+                                <li class="product" v-for="(item, index) in recommendList" :key="index" @click="addHits(item.id)">
+                                    <a :href="'/#/product/' + item.id" target="_blank">
                                         <div class="pro-img">
-                                            <img src="/imgs/item-box-1.png">
+                                            <img v-lazy="item.mainImage" :alt="item.subtitle">
                                         </div>
-                                        <div class="pro-name">男士夹克</div>
-                                        <div class="pro-price">998￥</div>
+                                        <div class="pro-name">{{ item.name }}</div>
+                                        <div class="pro-price">{{ item.price }}￥</div>
                                     </a>
                                 </li>
                             </ul>
@@ -37,7 +37,19 @@
                     </div>
                     <div class="item-menu">
                         <span>时下流行</span>
-                        <div class="children"></div>
+                        <div class="children">
+                            <ul>
+                                <li class="product" v-for="(item, index) in productList" :key="index" @click="addHits(item.id)">
+                                    <a :href="'/#/product/' + item.id" target="_blank">
+                                        <div class="pro-img">
+                                            <img v-lazy="item.mainImage" :alt="item.subtitle">
+                                        </div>
+                                        <div class="pro-name">{{ item.name }}</div>
+                                        <div class="pro-price">{{ item.price }}￥</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="header-search">
@@ -55,9 +67,10 @@
     import {mapState} from 'vuex'
     export default {
         name: "NavHeader",
+        props: ["productList", "recommendList"],
         data: ()=> ({
             // username: '',
-            searchParams: ''
+            searchParams: '',
         }),
         computed: {
             ...mapState(['username', 'cartCount'])
@@ -67,14 +80,15 @@
                 this.$router.push("/login");
             },
             logout: function () {
-                this.$cookie.set('userId','',{expires:'-1'});
+                this.$cookie.set('userId','',{expires:'-1'})
+                localStorage.clear()
                 this.$store.dispatch('saveUserName','');
                 this.$store.dispatch('saveCartCount','0');
                 this.$axios.post('/user/logout.do')
                     .then((res)=>{
                         console.log(res)
                     })
-                window.alert("退出成功")
+                this.$message.success("退出成功")
             },
             goToCart: function () {
                 if(this.username !== "") this.$router.push("/cart");
@@ -98,6 +112,21 @@
             },
             goToPerson: function () {
                 this.$router.push('/person');
+            },
+            addHits: function (val) {
+                this.$axios.post('/product/product_hits', this.$qs.stringify({
+                    productId: val
+                })).then(res=>{
+                    console.log(res)
+                })
+                if(this.$cookie.get("userId") !== null) {
+                    this.$axios.post('/product/category_hits', this.$qs.stringify({
+                        userId: this.$cookie.get("userId"),
+                        productId: val
+                    })).then(res=>{
+                        console.log(res)
+                    })
+                }
             }
         }
     }

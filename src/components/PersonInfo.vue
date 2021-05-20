@@ -1,7 +1,9 @@
 <template>
     <div>
         <el-form ref="form" :model="form" label-width="80px" :rules="rules">
-            <el-form-item label="昵称">
+            <el-form-item label="昵称"
+            :rules="[{required:true, message: '请输入昵称', trigger: blur}]"
+            >
                 <el-col :span="11">
                     <el-input :disabled="change" maxlength="12" show-word-limit placeholder="Dewily" v-model="form.name"></el-input>
                 </el-col>
@@ -24,18 +26,18 @@
                 ]">
                 <el-input :disabled="change" v-model="form.email"></el-input>
             </el-form-item>
-            <el-form-item label="密保问题" prop="question">
-                <el-select :disabled="change" v-model="form.question" placeholder="问题一">
-                    <el-option label="问题一" value="question1"></el-option>
-                    <el-option label="问题二" value="question2"></el-option>
-                    <el-option label="问题三" value="question2"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="密保答案">
-                <el-col :span="11">
-                    <el-input :disabled="change" placeholder="答案一" maxlength="10" show-word-limit v-model="form.answer"></el-input>
-                </el-col>
-            </el-form-item>
+<!--            <el-form-item label="密保问题" prop="question">-->
+<!--                <el-select :disabled="change" v-model="form.question" placeholder="问题一">-->
+<!--                    <el-option label="问题一" value="question1"></el-option>-->
+<!--                    <el-option label="问题二" value="question2"></el-option>-->
+<!--                    <el-option label="问题三" value="question2"></el-option>-->
+<!--                </el-select>-->
+<!--            </el-form-item>-->
+<!--            <el-form-item label="密保答案">-->
+<!--                <el-col :span="11">-->
+<!--                    <el-input :disabled="change" placeholder="答案一" maxlength="10" show-word-limit v-model="form.answer"></el-input>-->
+<!--                </el-col>-->
+<!--            </el-form-item>-->
             <el-form-item>
                 <el-button v-if="change" type="primary" @click="modifyInfo">修改</el-button>
                 <el-button v-if="!change" type="primary" @click="submitForm('form')">提交</el-button>
@@ -82,8 +84,24 @@
         methods: {
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
+                    let sex = 0;
                     if (valid) {
-                        alert('submit!');
+                        if(this.form.sex === "男")  sex = 1;
+                        this.$axios.post("/user/update_information.do", this.$qs.stringify({
+                            id: this.$cookie.get("userId"),
+                            sex: sex,
+                            username: this.form.name,
+                            email: this.form.email,
+                            phone: this.form.phone,
+                            question: this.form.question,
+                            answer: this.form.answer
+                        })).then(res=>{
+                            console.log(res)
+                            if(res.data.status === 0) {
+                                this.$message.success("修改成功")
+                                this.change = true
+                            }
+                        })
                     } else {
                         console.log('error submit!!');
                         return false;

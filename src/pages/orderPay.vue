@@ -56,26 +56,12 @@
             </div>
         </div>
         <scan-pay-code v-if="showPay" @close="closePayModal" :img="payImg"></scan-pay-code>
-        <modal
-                title="支付确认"
-                btnType="3"
-                :showModal="showPayModal"
-                sureText="查看订单"
-                cancelText="未支付"
-                @cancel="showPayModal=false"
-                @submit="goOrderList"
-        >
-            <template v-slot:body>
-                <p>您确认是否完成支付？</p>
-            </template>
-        </modal>
     </div>
 </template>
 <script>
     // import QRCode from 'qrcode'
     import OrderHeader from './../components/OrderHeader'
     import ScanPayCode from './../components/ScanPayCode'
-    import modal from "../components/modal";
     export default{
         name:'order-pay',
         data(){
@@ -96,7 +82,6 @@
         components:{
             OrderHeader,
             ScanPayCode,
-            modal
         },
         mounted(){
             this.getOrderDetail();

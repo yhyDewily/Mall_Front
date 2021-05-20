@@ -24,7 +24,7 @@
 </template>
 <script>
     export default{
-        name:'modal',
+        name:'Modal',
         props:{
             // 弹框类型：小small、中middle、大large、表单form
             modalType:{

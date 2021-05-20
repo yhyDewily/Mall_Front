@@ -145,6 +145,7 @@
                     userId: this.$cookie.get('userId'),
                     productId: item.productId
                 })).then((res)=>{
+                    console.log(res)
                     this.$message.success('删除成功');
                     this.renderData(res.data.data);
                 });

@@ -66,7 +66,7 @@
                         </div>
                         <div class="final-price-box">
                             <p class="final-price">总价：</p>
-                            <p class="final-price-num">{{ totalPrice }}元</p>
+                            <p class="final-price-num">{{ selected.price }}元</p>
                         </div>
                     </div>
                 </div>
@@ -100,13 +100,61 @@
                     </el-tab-pane>
                     <el-tab-pane label="用户评价">
                         <div class="remarks-container">
-                            <div class="remark-analyse-box">
-                                <div class="remarks-bar">
-                                    <span>追评(2000)</span>
-                                    <span>好评(3000)</span>
-                                    <span>中评(900)</span>
-                                    <span>差评(1)</span>
+                            <div class="remarks-bar">
+                                <el-button type="text" @click="addRemark">添加评价</el-button>
+                            </div>
+                            <div class="add-remark" v-show="remark">
+                                <el-form :model="newRemark" :rules="remarkRules" ref="newRemark">
+                                    <el-form-item >
+                                        <el-input type="textarea" v-model="newRemark.content"></el-input>
+                                    </el-form-item>
+                                </el-form>
+                                <div class="remark-rate">
+                                    <span>请选择满意度</span>
+                                    <el-rate
+                                    v-model="newRemark.rate"
+                                    show-text
+                                    >
+                                    </el-rate>
                                 </div>
+                                <div class="remark-button">
+                                    <el-button @click="submitRemark" size="mini">提交</el-button>
+                                    <el-button @click="remark=false" size="mini">取消</el-button>
+                                </div>
+                            </div>
+                            <div class="remarks-box" v-for="(item, index) in goodsRemarks" :key="index">
+                                <div class="remarks-user">
+                                    <el-avatar icon="el-icon-user-solid"
+                                               style="display: inline-block; text-align: center; position: relative; overflow: hidden; vertical-align: center;width: 32px;height:32px;line-height: 32px">
+                                    </el-avatar>
+                                    <span class="remarks-user-name">{{ item.userName }}</span>
+                                </div>
+                                <div class="remarks-content-box">
+                                    <p>
+                                        <el-rate
+                                        v-model="item.rate"
+                                        disabled
+                                        text-color="#ff9900"
+                                        >
+                                        </el-rate>
+                                    </p>
+                                    <p class="remarks-content">{{ item.content }}</p>
+                                    <p class="remarks-sub">
+                                        <span class="remarks-item">{{ item.create_time }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="remark-page" v-show="totalElements > 1">
+                                <el-pagination
+                                        @current-change="handleCurrentChange"
+                                        :current-page.sync="currentPage"
+                                        :page-size="12"
+                                        layout="prev, pager, next, jumper"
+                                        :total="totalElements">
+                                </el-pagination>
+                            </div>
+                            <div class="no-remark" v-show="totalElements === 0">
+                                <p style="text-align: center; margin-top: 10px; font-size: 20px">暂无评价</p>
                             </div>
                         </div>
                     </el-tab-pane>
@@ -127,13 +175,23 @@
         components: {ShowProductWarranty},
         data: ()=>({
             productId: 0,
+            currentPage: 1,
+            page_size: 0,
+            totalPages: 0,
+            totalElements: 0,
             imgIndex: 0,
+            remark:false,
             productParams: [
             ],
+            newRemark:{
+                rate: 0,
+                content: ''
+            },
             checked: false,
             selected: {
                 size: '',
-                count: 1
+                count: 1,
+                price: 0
             },
             totalPrice: 0,
             productInfo: {
@@ -142,20 +200,39 @@
                 title: '',
                 subtitle: '',
                 price: 0,
-                remarksNum: 600,
+                remarksNum: 0,
                 size: [
                     'M','L','XL','2XL','3XL','4XL'
                 ],
                 stock: 0,
                 detail: ''
             },
-            advice: []
+            goodsRemarks: [
+                {
+                    userName: 'Dewily',
+                    content: '商品不错',
+                    rate: 5,
+                    createTime: "2020-5-28"
+                }
+            ],
+            advice: [],
+            remarkRules: {
+                newContent: [
+                    {required: true, message: '请输入评论', trigger: 'blur'}
+                ]
+            }
         }),
         mounted() {
             this.getProduct();
-            this.setPrice();
+            this.getRemark();
         },
         methods: {
+            sliceElements(val) {
+                this.goodsRemarks = val.content;
+                this.totalElements = val.totalElements;
+                this.totalPages = val.totalPages;
+                this.productInfo.remarksNum = val.totalElements
+            },
             getProduct() {
                 this.productId = this.$route.params.id
                 console.log(this.$route.params.id)
@@ -166,6 +243,7 @@
                     let proInfo = res.data.data;
                     this.productInfo.title = proInfo.name;
                     this.productInfo.price = proInfo.price;
+                    this.selected.price = proInfo.price;
                     this.productInfo.subtitle = proInfo.subtitle;
                     this.totalPrice = proInfo.price;
                     this.productParams = proInfo.params;
@@ -181,9 +259,6 @@
                     //
                     // }
                 })
-            },
-            setPrice() {
-                return this.selected.price = this.productInfo.price
             },
             showBigImg(index){
                 this.imgIndex = index;
@@ -213,6 +288,64 @@
             countPrice(){
                 this.selected.price = this.productInfo.price * this.selected.count;
                 console.log(this.selected.price)
+            },
+            handleCurrentChange(val) {
+                this.$axios.post("/product/get_remark.do",this.$qs.stringify({
+                    productId: this.productId,
+                    pageNum: val
+                })).then(res=>{
+                    console.log(res)
+                    this.sliceElements(res.data.data)
+                })
+            },
+            getRemark() {
+                this.$axios.post("/product/get_remark.do",this.$qs.stringify({
+                    productId: this.productId
+                })).then(res=>{
+                    console.log(res)
+                    this.sliceElements(res.data.data)
+                })
+            },
+            addRemark() {
+                if(this.$cookie.get("userId") === " ") {
+                    this.$message.error("登录后才可以评论")
+                    return
+                }
+                this.$axios.post("/product/check_purchase.do", this.$qs.stringify({
+                    userId: this.$cookie.get("userId"),
+                    productId: this.productId
+                })).then(res=>{
+                    if(res.data.status === 1) {
+                        this.$message.error("只有购买过商品才能评论")
+                    } else {
+                        this.remark = true
+                    }
+                })
+
+            },
+            submitRemark() {
+                if(this.newRemark.content === "") {
+                    this.$message.error("评论内容不能为空")
+                } else if(this.newRemark.rate === 0) {
+                    this.$message.error("请选择满意度")
+                } else {
+                    this.$axios.post("/product/add_remark.do", this.$qs.stringify({
+                        userId:this.$cookie.get("userId"),
+                        productId: this.productId,
+                        remark: this.newRemark.content,
+                        rate: this.newRemark.rate
+                    })).then(res=>{
+                        console.log(res)
+                        if(res.data.status === 0) {
+                            this.$message.success("提交成功")
+                            this.remark = false
+                            this.getRemark();
+                        } else {
+                            this.$message.error("提交失败")
+                        }
+                    })
+
+                }
             }
         }
     }
@@ -364,13 +497,6 @@
     .item-intro-img img{
         width: 100%;
     }
-    .remarks-bar {
-        padding-left: 15px;
-        height: 36px;
-        line-height: 36px;
-        color: #666666;
-        background-color: #F7F7F7;
-    }
     .remarks-bar span {
         margin-right: 15px;
     }
@@ -401,5 +527,47 @@
     .main_sub_title{
         font-size: 10px;
         color: #888888;
+    }
+    .remarks-bar {
+        padding-left: 15px;
+        height: 36px;
+        line-height: 36px;
+        color: #666666;
+        background-color: #F7F7F7;
+    }
+    .remarks-bar span {
+        margin-right: 15px;
+    }
+    .remarks-box {
+        padding: 15px;
+        display: flex;
+        flex-direction: row;
+        border-bottom: 1px #ccc dotted;
+    }
+    .remarks-user {
+        margin: 0 auto;
+        width: 180px;
+    }
+    .remarks-user-name {
+
+        padding-left: 15px;
+    }
+    .remarks-content-box {
+        width: calc(100% - 180px);
+    }
+    .remarks-content {
+        font-size: 14px;
+        color: #232323;
+        line-height: 28px;
+    }
+    .remarks-sub {
+        margin-top: 15px;
+        color: #ccc;
+    }
+    .remark-button {
+        margin-top: 10px;
+    }
+    .add-remark {
+        margin-top: 10px;
     }
 </style>

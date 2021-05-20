@@ -14,7 +14,7 @@
                                 <img :src="item.mainImage"/>
                             </div>
                             <div class="goods-show-price">
-                                <span class="seckill-price">{{ item.price }}</span>
+                                <span class="seckill-price">{{ item.price }}￥</span>
                             </div>
                             <div class="goods-show-detail">
                                 <span class="goods-show-name">{{ item.name }}</span>
@@ -30,7 +30,7 @@
                                 <img :src="item.mainImage"/>
                             </div>
                             <div class="goods-show-price">
-                                <span class="seckill-price">{{ item.price }}</span>
+                                <span class="seckill-price">{{ item.price }}￥</span>
                             </div>
                             <div class="goods-show-detail">
                                 <span class="goods-show-name">{{ item.name }}</span>
@@ -44,12 +44,13 @@
                         <div class="goods-show-info"
                              v-for="(item,index) in row_3"
                              :key="index"
-                            @click="goToProduct(item.id)">
+                            @click="goToProduct(item.id)"
+                        >
                             <div class="goods-show-img">
                                 <img v-lazy="item.mainImage"/>
                             </div>
                             <div class="goods-show-price">
-                                <span class="seckill-price">{{ item.price}}</span>
+                                <span class="seckill-price">{{ item.price}}￥</span>
                             </div>
                             <div class="goods-show-detail">
                                 <span class="goods-show-name">{{ item.name }}</span>
@@ -102,6 +103,12 @@
         mounted() {
             this.getResult();
             this.getGoodsList();
+            window.onbeforeunload = function () {
+                var storage = window.localStorage;
+                this.$cookie.remove("userId")
+                storage.clear()
+                localStorage.clear()
+            }
         },
         methods: {
             getResult() {
@@ -189,6 +196,19 @@
                 }
             },
             goToProduct(val) {
+                this.$axios.post('/product/product_hits', this.$qs.stringify({
+                    productId: val
+                })).then(res=>{
+                    console.log(res)
+                })
+                if(this.$cookie.get("userId") !== null) {
+                    this.$axios.post('/product/category_hits', this.$qs.stringify({
+                        userId: this.$cookie.get("userId"),
+                        productId: val
+                    })).then(res=>{
+                        console.log(res)
+                    })
+                }
                 this.$router.push("/product/" + val)
             },
             getGrand(val) {
@@ -212,6 +232,7 @@
             getType(val) {
                 console.log(val)
                 this.action = 3
+                this.query = val
                 this.$router.push({
                     name: 'result',
                     params: {
@@ -222,6 +243,7 @@
                     keyword: val
                 })).then(res=>{
                     console.log(res)
+                    this.query = val
                     this.sliceElements(res.data.data)
                 })
             }

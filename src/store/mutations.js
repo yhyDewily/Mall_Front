@@ -7,5 +7,11 @@ export default {
     },
     saveCartCount(state, count) {
         state.cartCount = count;
+    },
+    saveHotProducts(state, hotProducts) {
+         state.hotProducts = hotProducts;
+    },
+    saveRecommend(state, recommendProducts) {
+         state.recommendProducts = recommendProducts
     }
 }

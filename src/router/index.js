@@ -16,9 +16,15 @@ import SearchResult from '../pages/searchResult'
 import Person from '../pages/person'
 import Address from "../components/Address";
 import PersonInfo from "../components/PersonInfo";
- import ChangePassword from "../components/ChangePassword";
+import ChangePassword from "../components/ChangePassword";
+import Reset from "../pages/reset"
 
 Vue.use(Router);
+
+const routerPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return routerPush.call(this, location).catch(error=> error)
+}
 
 export default new Router({
   routes:[
@@ -67,22 +73,34 @@ export default new Router({
         {
           path: 'list',
           name: 'order-list',
-          component: OrderList
+          component: OrderList,
+          meta: {
+            requireAuth:true
+          },
         },
         {
           path: 'confirm',
           name: 'order-confirm',
-          component: OrderConfirm
+          component: OrderConfirm,
+          meta: {
+            requireAuth:true
+          },
         },
         {
           path: 'pay',
           name: 'order-pay',
-          component: OrderPay
+          component: OrderPay,
+          meta: {
+            requireAuth:true
+          },
         },
         {
           path: 'alipay',
           name: 'alipay',
-          component: AliPay
+          component: AliPay,
+          meta: {
+            requireAuth:true
+          },
         }
       ]
     },
@@ -90,6 +108,11 @@ export default new Router({
       path: '/register',
       name: 'register',
       component: Register
+    },
+    {
+      path: '/reset',
+      name: 'reset',
+      component: Reset
     },
     {
       path: '/result/:query',
@@ -107,17 +130,26 @@ export default new Router({
         {
           path: 'address',
           name: 'address',
-          component: Address
+          component: Address,
+          meta: {
+            requireAuth:true
+          },
         },
         {
           path: 'person_info',
           name: 'person_info',
-          component: PersonInfo
+          component: PersonInfo,
+          meta: {
+            requireAuth:true
+          },
         },
         {
-          path: '/change_password',
+          path: 'change_password',
           name: 'change_password',
-          component: ChangePassword
+          component: ChangePassword,
+          meta: {
+            requireAuth:true
+          },
         }
       ]
     }

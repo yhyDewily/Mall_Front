@@ -65,11 +65,11 @@
 </template>
 
 <script>
-    import modal from "./modal";
+    import Modal from "./Modal";
     export default {
         name: "Address",
-        comments: {
-            modal
+        components: {
+            Modal: Modal
         },
         data: ()=>({
             list:[],

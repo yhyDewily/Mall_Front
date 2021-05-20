@@ -6,10 +6,12 @@ Vue.use(Vuex);
 
 const state = {
   username:'',//登录用户名
-  cartCount:0//购物车商品数量
+  cartCount:0, //购物车商品数量
+  hotProducts: [],
+  recommendProducts: []
 };
 export default new Vuex.Store({
   state,
   mutations,
-  actions
+  actions,
 });

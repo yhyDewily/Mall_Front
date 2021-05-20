@@ -83,6 +83,7 @@
         },
         methods: {
             checkPaid(){
+                // location.reload();
                 this.qrCode = this.qrCode + this.$route.query.orderNo+'.png';
                 this.loopOrderState()
             },
@@ -92,7 +93,6 @@
                         userId: this.$cookie.get('userId'),
                         orderNo: this.$route.query.orderNo
                     })).then(res=>{
-                        console.log(res)
                         if(res.data.data === true) {
                             clearInterval(this.T);
                             this.goOrderList();
@@ -105,7 +105,6 @@
                     userId: this.$cookie.get("userId"),
                     orderNo: this.$route.query.orderNo
                 })).then(res=>{
-                    console.log(res.data);
                     let orderInfo = res.data.data;
                     this.addressInfo = orderInfo.addressVo.address;
                     this.orderDetail = orderInfo.orderItemVoList;
